@@ -2,6 +2,9 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Laboratório simples para testar leitura e interação de navegação web.">
   <title>Lisa Interaction Lab — Teste B</title>
@@ -84,26 +87,177 @@
   <footer>Protótipo de teste local no navegador. As mensagens deste formulário não são enviadas para um servidor nem para outra pessoa; ficam apenas nesta página. Não insira dados pessoais ou segredos.</footer>
 </main>
 <script>
+  // ==========================================
+  // LISA INTERACTION LAB
+  // Conexão com Supabase
+  // ==========================================
+
+  const SUPABASE_URL =
+    'https://kkxeulknosfyccecrzay.supabase.co';
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    'sb_publishable_dOSVpONqBidEGpIGChrEsg_FbwQG0W9';
+
+  const TEST_CODE = 'LISA-TEST-004';
+
+  // Inicialização do Supabase
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+  // Identificador da sessão
+  const sessionId =
+    typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : null;
+
+  // ==========================================
+  // REGISTRO DE EVENTOS NO BANCO
+  // ==========================================
+
+  async function registerEvent(action, message = null) {
+    try {
+      const { error } = await supabaseClient
+        .from('interaction_events')
+        .insert({
+          test_code: TEST_CODE,
+          action: action,
+          message: message,
+          session_id: sessionId
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      console.log('[SUPABASE] Evento registrado:', action);
+
+      return {
+        success: true
+      };
+
+    } catch (error) {
+      console.error('[SUPABASE] Erro:', error);
+
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // ==========================================
+  // TESTE 1 - CLIQUE NO BOTÃO
+  // ==========================================
+
   const clickButton = document.getElementById('clickButton');
   const clickResult = document.getElementById('clickResult');
-  clickButton.addEventListener('click', () => {
+
+  clickButton.addEventListener('click', async () => {
+
+    clickButton.disabled = true;
     clickResult.classList.add('visible');
-    clickButton.textContent = 'Botão acionado ✓';
+
+    const result = await registerEvent(
+      'button_clicked',
+      'CLICK-731'
+    );
+
+    if (result.success) {
+      clickButton.textContent = 'Botão acionado ✓';
+      clickResult.textContent =
+        'CLICK-731 — Evento registrado no banco de dados ✓';
+    } else {
+      clickButton.textContent = 'Botão acionado';
+      clickResult.textContent =
+        'Ação local concluída, mas o registro falhou: ' +
+        result.error;
+    }
+
+    clickButton.disabled = false;
   });
 
-  document.getElementById('messageForm').addEventListener('submit', (event) => {
-    event.preventDefault();
-    const value = document.getElementById('messageInput').value.trim();
-    if (!value) return;
-    const result = document.getElementById('messageResult');
-    result.textContent = 'Mensagem recebida pela página: ' + value;
-    result.classList.add('visible');
+  // ==========================================
+  // TESTE 2 - ENVIO DE MENSAGEM
+  // ==========================================
+
+  document.getElementById('messageForm')
+    .addEventListener('submit', async (event) => {
+
+      event.preventDefault();
+
+      const input = document.getElementById('messageInput');
+      const value = input.value.trim();
+
+      if (!value) return;
+
+      const result = document.getElementById('messageResult');
+      const submitButton = event.submitter;
+
+      if (submitButton) {
+        submitButton.disabled = true;
+      }
+
+      result.textContent = 'Enviando mensagem ao servidor...';
+      result.classList.add('visible');
+
+      const response = await registerEvent(
+        'message_submitted',
+        value
+      );
+
+      if (response.success) {
+        result.textContent =
+          'Mensagem recebida e registrada no banco: ' + value;
+        input.value = '';
+      } else {
+        result.textContent =
+          'Não foi possível registrar a mensagem: ' +
+          response.error;
+      }
+
+      if (submitButton) {
+        submitButton.disabled = false;
+      }
+    });
+
+  // ==========================================
+  // TESTE 3 - REVELAÇÃO DE CÓDIGO
+  // ==========================================
+
+  const revealButton = document.getElementById('revealButton');
+  const revealResult = document.getElementById('revealResult');
+
+  revealButton.addEventListener('click', async () => {
+
+    revealButton.disabled = true;
+
+    // Revelação local
+    revealResult.classList.add('visible');
+
+    const response = await registerEvent(
+      'code_revealed',
+      'LISA-274'
+    );
+
+    if (response.success) {
+      revealButton.textContent = 'Código revelado ✓';
+      revealResult.textContent =
+        'LISA-274 — Revelação registrada no banco ✓';
+    } else {
+      revealButton.textContent = 'Código revelado';
+      revealResult.textContent =
+        'Código revelado localmente, mas o registro falhou: ' +
+        response.error;
+    }
+
+    revealButton.disabled = false;
   });
 
-  document.getElementById('revealButton').addEventListener('click', () => {
-    document.getElementById('revealResult').classList.add('visible');
-    document.getElementById('revealButton').textContent = 'Código revelado ✓';
-  });
+  console.log('[LISA LAB] Sistema inicializado.');
+  console.log('[LISA LAB] Session ID:', sessionId);
+
 </script>
 </body>
 </html>
