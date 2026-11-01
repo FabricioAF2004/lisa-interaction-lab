@@ -2,12 +2,9 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-<<<<<<< HEAD
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
-=======
->>>>>>> origin/main
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Laboratório simples para testar leitura e interação de navegação web.">
   <title>Lisa Interaction Lab — Teste B</title>
@@ -90,7 +87,6 @@
   <footer>Protótipo de teste local no navegador. As mensagens deste formulário não são enviadas para um servidor nem para outra pessoa; ficam apenas nesta página. Não insira dados pessoais ou segredos.</footer>
 </main>
 <script>
-<<<<<<< HEAD
   // ==========================================
   // LISA INTERACTION LAB
   // Conexão com Supabase
@@ -262,28 +258,6 @@
   console.log('[LISA LAB] Sistema inicializado.');
   console.log('[LISA LAB] Session ID:', sessionId);
 
-=======
-  const clickButton = document.getElementById('clickButton');
-  const clickResult = document.getElementById('clickResult');
-  clickButton.addEventListener('click', () => {
-    clickResult.classList.add('visible');
-    clickButton.textContent = 'Botão acionado ✓';
-  });
-
-  document.getElementById('messageForm').addEventListener('submit', (event) => {
-    event.preventDefault();
-    const value = document.getElementById('messageInput').value.trim();
-    if (!value) return;
-    const result = document.getElementById('messageResult');
-    result.textContent = 'Mensagem recebida pela página: ' + value;
-    result.classList.add('visible');
-  });
-
-  document.getElementById('revealButton').addEventListener('click', () => {
-    document.getElementById('revealResult').classList.add('visible');
-    document.getElementById('revealButton').textContent = 'Código revelado ✓';
-  });
->>>>>>> origin/main
 </script>
 </body>
 </html>
